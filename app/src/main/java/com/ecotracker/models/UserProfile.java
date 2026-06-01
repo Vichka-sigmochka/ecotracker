@@ -13,7 +13,9 @@ public class UserProfile {
 
     public String getLevelName() {
         String[] levels = {"🌱 Росток", "🌿 Саженец", "🌳 Молодое дерево", "🍃 Взрослое дерево", "🌲 Лес"};
-        if (level >= 0 && level < levels.length) return levels[level];
+        if (level >= 0 && level < levels.length) {
+            return levels[level];
+        }
         return levels[0];
     }
 }

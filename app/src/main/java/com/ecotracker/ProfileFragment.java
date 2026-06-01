@@ -12,9 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.ecotracker.models.UserProfile;
 
 public class ProfileFragment extends Fragment {
@@ -35,12 +37,10 @@ public class ProfileFragment extends Fragment {
         btnShare = v.findViewById(R.id.btn_share);
         btnLogout = v.findViewById(R.id.btn_logout);
         achLayout = v.findViewById(R.id.ach_layout);
-
         updateUI();
         btnEdit.setOnClickListener(view -> editName());
         btnShare.setOnClickListener(view -> share());
         btnLogout.setOnClickListener(view -> logout());
-
         return v;
     }
 
@@ -54,20 +54,22 @@ public class ProfileFragment extends Fragment {
         UserProfile p = EcoApp.getInstance().getProfile();
         int totalTrees = p.totalPoints / 1000;
         int totalForests = totalTrees / 15;
-
         tvName.setText(p.name);
         tvCO2.setText(String.valueOf(p.totalCO2));
         tvPoints.setText(String.valueOf(p.totalPoints));
-
         int cyclePoints = p.totalPoints % 1000;
-        if (cyclePoints < 100) tvLevel.setText("🌱 Росток");
-        else if (cyclePoints < 300) tvLevel.setText("🌿 Саженец");
-        else if (cyclePoints < 600) tvLevel.setText("🌳 Молодое дерево");
-        else if (cyclePoints < 1000) tvLevel.setText("🍃 Взрослое дерево");
-        else tvLevel.setText("🌲 Лес");
-
+        if (cyclePoints < 100) {
+            tvLevel.setText("🌱 Росток");
+        } else if (cyclePoints < 300) {
+            tvLevel.setText("🌿 Саженец");
+        } else if (cyclePoints < 600) {
+            tvLevel.setText("🌳 Молодое дерево");
+        } else if (cyclePoints < 1000) {
+            tvLevel.setText("🍃 Взрослое дерево");
+        } else {
+            tvLevel.setText("🌲 Лес");
+        }
         tvTrees.setText("🌳 Деревьев: " + totalTrees + " | 🌲 Лесов: " + totalForests);
-
         achLayout.removeAllViews();
         for (String a : p.achievements) {
             TextView tv = new TextView(getContext());
@@ -89,13 +91,11 @@ public class ProfileFragment extends Fragment {
             if (!newName.isEmpty()) {
                 EcoApp.getInstance().getProfile().name = newName;
                 EcoApp.getInstance().saveData();
-
                 String currentUser = MainActivity.getCurrentUser();
                 if (!currentUser.isEmpty()) {
                     DatabaseHelper dbHelper = new DatabaseHelper(getContext());
                     dbHelper.updateUserName(currentUser, newName);
                 }
-
                 tvName.setText(newName);
             }
         });
@@ -107,7 +107,6 @@ public class ProfileFragment extends Fragment {
         UserProfile p = EcoApp.getInstance().getProfile();
         int totalTrees = p.totalPoints / 1000;
         int totalForests = totalTrees / 15;
-
         String text = String.format("🌍 Я сэкономил %d кг CO₂ в Эко-трекере! Посажено деревьев: %d, выращено лесов: %d! Присоединяйся!",
                 p.totalCO2, totalTrees, totalForests);
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -122,15 +121,10 @@ public class ProfileFragment extends Fragment {
         builder.setMessage("Вы уверены, что хотите выйти?");
         builder.setPositiveButton("Да", (dialog, which) -> {
             EcoApp.getInstance().saveData();
-
             SharedPreferences authPrefs = getContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
-            authPrefs.edit()
-                    .putBoolean("is_logged_in", false)
-                    .putString("current_user", "")
-                    .apply();
-
+            authPrefs.edit().putBoolean("is_logged_in", false)
+                    .putString("current_user", "").apply();
             MainActivity.logout();
-
             Intent intent = new Intent(getContext(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

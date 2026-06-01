@@ -11,10 +11,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.ecotracker.models.EcoAction;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +39,6 @@ public class ActionsFragment extends Fragment {
         etQty = v.findViewById(R.id.et_qty);
         tvEstimate = v.findViewById(R.id.tv_estimate);
         btnAdd = v.findViewById(R.id.btn_add);
-
         initActions();
         setupSpinners();
         btnAdd.setOnClickListener(view -> addAction());
@@ -135,7 +137,9 @@ public class ActionsFragment extends Fragment {
     }
 
     private void addAction() {
-        if (etQty == null || spCat == null || spAct == null) return;
+        if (etQty == null || spCat == null || spAct == null) {
+            return;
+        }
         String q = etQty.getText().toString();
         if (q.isEmpty()) {
             Toast.makeText(getContext(), "Введите количество", Toast.LENGTH_SHORT).show();
@@ -146,14 +150,14 @@ public class ActionsFragment extends Fragment {
             String cat = spCat.getSelectedItem().toString();
             int pos = spAct.getSelectedItemPosition();
             List<ActionItem> items = actionsMap.get(cat);
-            if (items == null || pos >= items.size()) return;
+            if (items == null || pos >= items.size()) {
+                return;
+            }
             ActionItem act = items.get(pos);
             double co2 = qty * act.co2;
             int points = (int) Math.round(co2);
-
             EcoAction ecoAction = new EcoAction(cat, act.full, qty, act.unit, co2, points);
             EcoApp.getInstance().addAction(ecoAction);
-
             Toast.makeText(getContext(), "Добавлено! +" + points + " очков", Toast.LENGTH_SHORT).show();
             etQty.setText("");
             updateEstimate();

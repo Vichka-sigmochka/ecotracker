@@ -10,10 +10,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+
 import com.ecotracker.models.UserProfile;
 
 public class HomeFragment extends Fragment {
@@ -36,7 +38,6 @@ public class HomeFragment extends Fragment {
         tvPlantedTrees = v.findViewById(R.id.tv_planted_trees);
         treesContainer = v.findViewById(R.id.trees_container);
         forestsContainer = v.findViewById(R.id.forests_container);
-
         updateUI();
         return v;
     }
@@ -50,24 +51,19 @@ public class HomeFragment extends Fragment {
     private void updateUI() {
         EcoApp app = EcoApp.getInstance();
         UserProfile p = app.getProfile();
-
         int cyclePoints = p.totalPoints % 1000;
-
         tvLevel.setText(p.getLevelName());
         tvPoints.setText(String.valueOf(p.totalPoints));
         tvCO2.setText(p.totalCO2 + " кг");
-
         if (tvPlantedTrees != null) {
             int totalTrees = p.totalPoints / 1000;
             int totalForests = totalTrees / 15;
             tvPlantedTrees.setText("🌳 Деревьев: " + totalTrees + " | 🌲 Лесов: " + totalForests);
         }
-
         if (forestsContainer != null) {
             forestsContainer.removeAllViews();
             int totalTrees = p.totalPoints / 1000;
             int totalForests = totalTrees / 15;
-
             for (int i = 0; i < totalForests; i++) {
                 CardView card = new CardView(getContext());
                 CardView.LayoutParams params = new CardView.LayoutParams(80, 80);
@@ -76,23 +72,19 @@ public class HomeFragment extends Fragment {
                 card.setRadius(12f);
                 card.setCardElevation(4f);
                 card.setCardBackgroundColor(Color.parseColor("#4CAF50"));
-
                 TextView emoji = new TextView(getContext());
                 emoji.setText("🌲");
                 emoji.setTextSize(32);
                 emoji.setGravity(Gravity.CENTER);
                 emoji.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
-
                 card.addView(emoji);
                 forestsContainer.addView(card);
             }
         }
-
         if (treesContainer != null) {
             treesContainer.removeAllViews();
             int totalTrees = p.totalPoints / 1000;
             int remainingTrees = totalTrees % 15;
-
             for (int i = 0; i < remainingTrees; i++) {
                 CardView card = new CardView(getContext());
                 CardView.LayoutParams params = new CardView.LayoutParams(70, 70);
@@ -101,22 +93,18 @@ public class HomeFragment extends Fragment {
                 card.setRadius(10f);
                 card.setCardElevation(3f);
                 card.setCardBackgroundColor(Color.parseColor("#8BC34A"));
-
                 TextView emoji = new TextView(getContext());
                 emoji.setText("🌳");
                 emoji.setTextSize(28);
                 emoji.setGravity(Gravity.CENTER);
                 emoji.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
-
                 card.addView(emoji);
                 treesContainer.addView(card);
             }
         }
-
         int current = cyclePoints;
         int max = 0, progressVal = 0;
         String message = "";
-
         if (current < 100) {
             progressVal = current;
             max = 100;
@@ -138,23 +126,25 @@ public class HomeFragment extends Fragment {
             max = 100;
             message = "🌲 Лес достигнут! Дерево перерождается в росток!";
         }
-
         if (p.forestCycles > 0 && current < 1000) {
             message = "🌲 Лес #" + p.forestCycles + " | " + message;
         }
-
         progress.setMax(max);
         progress.setProgress(progressVal);
         tvMessage.setText(message);
-
         int[] trees = {R.drawable.ic_sprout, R.drawable.ic_sapling, R.drawable.ic_young, R.drawable.ic_adult, R.drawable.ic_forest};
         int levelIndex = 0;
-        if (current >= 1000) levelIndex = 4;
-        else if (current >= 600) levelIndex = 3;
-        else if (current >= 300) levelIndex = 2;
-        else if (current >= 100) levelIndex = 1;
-        else levelIndex = 0;
-
+        if (current >= 1000) {
+            levelIndex = 4;
+        } else if (current >= 600) {
+            levelIndex = 3;
+        } else if (current >= 300) {
+            levelIndex = 2;
+        } else if (current >= 100) {
+            levelIndex = 1;
+        } else {
+            levelIndex = 0;
+        }
         ivTree.setImageResource(trees[levelIndex]);
     }
 }

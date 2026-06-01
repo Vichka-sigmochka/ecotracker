@@ -9,12 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.ecotracker.models.EcoAction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,23 +33,19 @@ public class HistoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_history, container, false);
-
         try {
             recycler = v.findViewById(R.id.recycler);
             spinnerCategory = v.findViewById(R.id.spinner_category);
             tvTotalCO2 = v.findViewById(R.id.tv_total_co2);
-
             if (recycler != null) {
                 recycler.setLayoutManager(new LinearLayoutManager(getContext()));
             }
-
             setupCategorySpinner();
             updateList();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Ошибка загрузки истории", Toast.LENGTH_SHORT).show();
         }
-
         return v;
     }
 
@@ -55,7 +54,6 @@ public class HistoryFragment extends Fragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         if (spinnerCategory != null) {
             spinnerCategory.setAdapter(adapter);
             spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -72,10 +70,10 @@ public class HistoryFragment extends Fragment {
     }
 
     private void filterByCategory(String category) {
-        if (allActions == null) return;
-
+        if (allActions == null) {
+            return;
+        }
         filteredActions.clear();
-
         if (category.equals("Все")) {
             filteredActions.addAll(allActions);
         } else {
@@ -85,7 +83,6 @@ public class HistoryFragment extends Fragment {
                 }
             }
         }
-
         updateTotalCO2();
         if (adapter != null) {
             adapter.notifyDataSetChanged();
@@ -112,14 +109,11 @@ public class HistoryFragment extends Fragment {
         try {
             allActions.clear();
             allActions.addAll(EcoApp.getInstance().getActions());
-
             String selectedCategory = "Все";
             if (spinnerCategory != null && spinnerCategory.getSelectedItem() != null) {
                 selectedCategory = spinnerCategory.getSelectedItem().toString();
             }
-
             filterByCategory(selectedCategory);
-
             adapter = new HistoryAdapter(filteredActions);
             if (recycler != null) {
                 recycler.setAdapter(adapter);
@@ -133,7 +127,11 @@ public class HistoryFragment extends Fragment {
         List<EcoAction> list;
 
         HistoryAdapter(List<EcoAction> l) {
-            list = l != null ? l : new ArrayList<>();
+            if (l != null) {
+                list = l;
+            } else {
+                list = new ArrayList<>();
+            }
         }
 
         @NonNull
@@ -148,10 +146,22 @@ public class HistoryFragment extends Fragment {
             if (i < list.size()) {
                 EcoAction a = list.get(i);
                 if (a != null) {
-                    h.tvAct.setText(a.name != null ? a.name : "Действие");
-                    h.tvCat.setText(a.category != null ? a.category : "Другое");
+                    if (a.name != null) {
+                        h.tvAct.setText(a.name);
+                    } else {
+                        h.tvAct.setText("Действие");
+                    }
+                    if (a.category != null) {
+                        h.tvCat.setText(a.category);
+                    } else {
+                        h.tvCat.setText("Другое");
+                    }
                     h.tvDet.setText(String.format("%.1f %s → %.1f кг", a.quantity, a.unit, a.co2Saved));
-                    h.tvDate.setText(a.date != null ? a.date : "");
+                    if (a.date != null) {
+                        h.tvDate.setText(a.date);
+                    } else {
+                        h.tvDate.setText("");
+                    }
                     h.tvPts.setText("+" + a.points);
                 }
             }
@@ -159,7 +169,10 @@ public class HistoryFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return list != null ? list.size() : 0;
+            if (list != null) {
+                return list.size();
+            }
+            return 0;
         }
 
         class VH extends RecyclerView.ViewHolder {

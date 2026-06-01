@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import com.ecotracker.models.EcoAction;
 import com.ecotracker.models.UserProfile;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,7 +62,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_PASSWORD + " TEXT, " +
                 COLUMN_NAME + " TEXT)";
         db.execSQL(createUsersTable);
-
         String createActionsTable = "CREATE TABLE " + TABLE_ACTIONS + " (" +
                 COLUMN_ACTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_USER_EMAIL + " TEXT, " +
@@ -73,7 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_DATE + " TEXT, " +
                 "FOREIGN KEY(" + COLUMN_USER_EMAIL + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_EMAIL + "))";
         db.execSQL(createActionsTable);
-
         String createProfileTable = "CREATE TABLE " + TABLE_PROFILE + " (" +
                 COLUMN_USER_EMAIL + " TEXT PRIMARY KEY, " +
                 COLUMN_TOTAL_CO2 + " INTEGER, " +
@@ -85,7 +85,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_ACHIEVEMENTS + " TEXT, " +
                 "FOREIGN KEY(" + COLUMN_USER_EMAIL + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_EMAIL + "))";
         db.execSQL(createProfileTable);
-
         String createChallengesTable = "CREATE TABLE " + TABLE_CHALLENGES + " (" +
                 COLUMN_CHALLENGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_USER_EMAIL + " TEXT, " +
@@ -112,9 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_EMAIL, email);
         values.put(COLUMN_PASSWORD, password);
         values.put(COLUMN_NAME, name);
-
         long result = db.insert(TABLE_USERS, null, values);
-
         if (result != -1) {
             createDefaultProfile(email);
             createDefaultChallenges(email);
@@ -178,10 +175,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public UserProfile getProfile(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         UserProfile profile = new UserProfile();
-
         String query = "SELECT * FROM " + TABLE_PROFILE + " WHERE " + COLUMN_USER_EMAIL + " = ?";
         Cursor cursor = db.rawQuery(query, new String[]{email});
-
         if (cursor.moveToFirst()) {
             profile.totalCO2 = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_CO2));
             profile.totalPoints = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_POINTS));
@@ -189,7 +184,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             profile.treesCount = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TREES_COUNT));
             profile.forestsCount = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FORESTS_COUNT));
             profile.forestCycles = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FOREST_CYCLES));
-
             String achievementsStr = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ACHIEVEMENTS));
             if (achievementsStr != null && !achievementsStr.isEmpty()) {
                 profile.achievements = new ArrayList<>(Arrays.asList(achievementsStr.split(",")));
@@ -198,7 +192,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-
         profile.name = getUserName(email);
         return profile;
     }
@@ -212,14 +205,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TREES_COUNT, profile.treesCount);
         values.put(COLUMN_FORESTS_COUNT, profile.forestsCount);
         values.put(COLUMN_FOREST_CYCLES, profile.forestCycles);
-
         String achievementsStr = "";
         for (int i = 0; i < profile.achievements.size(); i++) {
-            if (i > 0) achievementsStr += ",";
+            if (i > 0) {
+                achievementsStr += ",";
+            }
             achievementsStr += profile.achievements.get(i);
         }
         values.put(COLUMN_ACHIEVEMENTS, achievementsStr);
-
         db.update(TABLE_PROFILE, values, COLUMN_USER_EMAIL + " = ?", new String[]{email});
     }
 
@@ -240,11 +233,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<EcoAction> getActions(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<EcoAction> actions = new ArrayList<>();
-
         String query = "SELECT * FROM " + TABLE_ACTIONS + " WHERE " + COLUMN_USER_EMAIL + " = ? ORDER BY " +
                 COLUMN_ACTION_ID + " DESC";
         Cursor cursor = db.rawQuery(query, new String[]{email});
-
         while (cursor.moveToNext()) {
             EcoAction action = new EcoAction(
                     cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)),
@@ -267,7 +258,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "Неделя без мяса", "30 дней на велике", "Откажись от пакетов",
                 "Эко-детокс", "Сортировка отходов", "Веганский вызов"
         };
-
         for (String name : challengeNames) {
             ContentValues values = new ContentValues();
             values.put(COLUMN_USER_EMAIL, email);
@@ -324,7 +314,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PROGRESS, progress);
         values.put(COLUMN_COMPLETED, completed ? 1 : 0);
         values.put(COLUMN_REWARD_CLAIMED, rewardClaimed ? 1 : 0);
-
         db.update(TABLE_CHALLENGES, values,
                 COLUMN_USER_EMAIL + " = ? AND " + COLUMN_CHALLENGE_NAME + " = ?",
                 new String[]{email, challengeName});
